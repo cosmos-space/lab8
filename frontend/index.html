@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>E-Shop Catalog</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="brand">E-Shop</a>
+            <ul id="nav-links">
+                <li><a href="index.html">Shop</a></li>
+                <li><a href="cart.html">Cart (<span id="cart-count">0</span>)</a></li>
+                <li id="auth-link"><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="container">
+        <h1>Our Products</h1>
+        <div id="product-grid" class="grid-container">
+            <!-- Products will be injected here via JavaScript -->
+        </div>
+    </main>
+
+    <script src="js/api/api.js"></script>
+    <script src="js/pages/cart.js"></script>
+    <script src="js/pages/shop.js"></script>
+</body>
+</html>
