@@ -10,6 +10,17 @@ exports.getAllProducts = async (req, res) => {
     }
 };
 
+exports.getProductById = async (req, res) => {
+    try {
+        const product = await Product.getById(req.params.id);
+        if (!product) return res.status(404).json({ error: 'Product not found' });
+        res.json(product);
+    } catch (error) {
+        console.error('Get product error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 exports.createProduct = async (req, res) => {
     try {
         const { name, description, price, stock_quantity } = req.body;
@@ -30,6 +41,19 @@ exports.createProduct = async (req, res) => {
         res.status(201).json({ message: 'Product created', productId });
     } catch (error) {
         console.error('Create product error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+exports.deleteProduct = async (req, res) => {
+    try {
+        const deleted = await Product.delete(req.params.id);
+        if (!deleted) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+        res.json({ message: 'Product deleted' });
+    } catch (error) {
+        console.error('Delete product error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };

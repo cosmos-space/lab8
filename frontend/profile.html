@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Profile - E-Shop</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="brand">E-Shop</a>
+            <ul id="nav-links">
+                <li><a href="index.html">Shop</a></li>
+                <li><a href="cart.html">Cart (<span id="cart-count">0</span>)</a></li>
+                <li><a href="#" id="logout-link">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h1>Your Profile</h1>
+
+        <section class="form-card">
+            <h2>Account</h2>
+            <p><strong>Username:</strong> <span id="profile-username"></span></p>
+            <p><strong>Email:</strong> <span id="profile-email"></span></p>
+        </section>
+
+        <section class="table-card">
+            <h2>Order History</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="order-table-body"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="js/api/api.js"></script>
+    <script src="js/pages/cart.js"></script>
+    <script src="js/pages/profile.js"></script>
+</body>
+</html>

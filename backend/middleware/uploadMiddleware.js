@@ -13,4 +13,4 @@ module.exports = upload;
 
 // In the product route:
 // const upload = require('../middleware/uploadMiddleware');
-// router.post('/', verifyToken, isAdmin, upload.single('image'), productController.createProduct);
+// router.post('/', verifyToken, isAdmin, upload.single('image'), productController.createProduct); 

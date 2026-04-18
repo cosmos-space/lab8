@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - E-Shop</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Sign Up</h1>
+        <form id="signup-form" class="form-card">
+            <label for="su-username">Username</label>
+            <input id="su-username" name="username" type="text" required>
+
+            <label for="su-email">Email</label>
+            <input id="su-email" name="email" type="email" required>
+
+            <label for="su-password">Password</label>
+            <input id="su-password" name="password" type="password" required>
+
+            <button type="submit">Create Account</button>
+
+            <p class="page-link">
+                Already have an account?
+                <a href="login.html">Login</a>
+            </p>
+        </form>
+    </main>
+
+    <script src="js/api/api.js"></script>
+    <script src="js/pages/auth.js"></script>
+</body>
+</html>

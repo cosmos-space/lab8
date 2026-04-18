@@ -18,6 +18,11 @@ class Product {
         );
         return result.insertId;
     }
+
+    static async delete(id) {
+        const [result] = await db.execute('DELETE FROM products WHERE id = ?', [id]);
+        return result.affectedRows;
+    }
 }
 
 module.exports = Product;

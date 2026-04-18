@@ -1,5 +1,40 @@
 const Order = require('../models/Order');
 
+exports.getMyOrders = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+        const orders = await Order.getOrdersByUser(userId);
+        const withItems = [];
+        for (const order of orders) {
+            const items = await Order.getOrderItems(order.id);
+            withItems.push({ ...order, items });
+        }
+        res.json(withItems);
+    } catch (error) {
+        console.error('Get my orders error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+exports.getAll = async (req, res) => {
+    try {
+        const db = require('../config/db');
+        const [rows] = await db.execute(
+            `SELECT o.id, o.total_amount, o.status, o.created_at,
+                    u.username, u.email
+             FROM orders o
+             JOIN users u ON o.user_id = u.id
+             ORDER BY o.created_at DESC`
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error('Get all orders error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 exports.checkout = async (req, res) => {
     try {
         const { items, total_amount } = req.body;
@@ -39,4 +74,4 @@ exports.updateStatus = async (req, res) => {
         console.error('Update status error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
-};
+}; 

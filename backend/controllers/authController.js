@@ -28,16 +28,20 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        console.log('LOGIN attempt:', { email });
 
         if (!email || !password) {
+            console.log('LOGIN fail: missing email or password');
             return res.status(400).json({ error: 'Email and password are required' });
         }
         const user = await User.findByEmail(email);
         if (!user) {
+            console.log('LOGIN fail: user not found for email', email);
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) {
+            console.log('LOGIN fail: bad password for user id', user.id);
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         const payload = {
@@ -70,4 +74,4 @@ exports.login = async (req, res) => {
 exports.logout = (req, res) => {
 res.clearCookie('token');
 res.json({ message: 'Logged out successfully' });
-};
+}; 

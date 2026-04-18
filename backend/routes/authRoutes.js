@@ -31,4 +31,4 @@ router.post('/login', authLimiter, [
 
 router.post('/logout', authController.logout);
 
-module.exports = router;
+module.exports = router; 

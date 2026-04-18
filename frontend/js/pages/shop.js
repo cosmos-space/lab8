@@ -17,7 +17,7 @@ async function loadProducts() {
             title.textContent = product.name;
 
             const price = document.createElement('p');
-            price.textContent = `$${ (Number(product.price) / 100).toFixed(2) }`;
+            price.textContent = `$${ (Number(product.price) / 100).toFixed(2) }`; 
 
             const btn = document.createElement('button');
             btn.textContent = 'Add to Cart';

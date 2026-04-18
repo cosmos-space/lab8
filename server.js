@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
-require('dotenv').config({ path: __dirname + '/.env' });
+require('dotenv').config({ path: path.join(__dirname, 'backend', '.env') });
 
 // Initialize express app
 const app = express();
@@ -25,7 +25,7 @@ const swaggerOptions = {
             }
         }
     },
-    apis: ['./routes/*.js'], // Scan routes for JSDoc annotations
+    apis: [path.join(__dirname, 'backend', 'routes', '*.js')], // Scan routes for JSDoc annotations
 };
 const swaggerSpecs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
@@ -60,9 +60,9 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 
-// Serve index.html for client-side routing
+// Serve login as landing page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+    res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
 });
 
 // Centralized Error Handler
@@ -72,4 +72,4 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-});
+}); 

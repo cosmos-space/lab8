@@ -169,3 +169,39 @@ thead th {
 .page-link a {
     color: #0d47a1;
 }
+
+/* Global modal */
+#global-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+#global-modal.visible {
+    display: flex;
+}
+#global-modal .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+}
+#global-modal .modal-card {
+    position: relative;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+#global-modal .modal-card.error {
+    border-left: 4px solid #d9534f;
+}
+#global-modal h3 {
+    margin-top: 0;
+}
+#global-modal button {
+    margin-top: 1rem;
+}

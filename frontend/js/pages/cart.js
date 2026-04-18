@@ -57,7 +57,7 @@ function renderCart() {
     totalEl.textContent = `$${total.toFixed(2)}`;
 }
 
-async function handleCheckout() {
+async function handleCheckout() { 
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -71,13 +71,15 @@ async function handleCheckout() {
             items: cart,
             total_amount: total
         });
-        alert('Order placed!');
         localStorage.removeItem('cart');
         updateCartCount();
         renderCart();
-        window.location.href = 'index.html';
+        showModal('Transaction complete', 'Your order has been placed!');
+        setTimeout(() => {
+            window.location.href = 'profile.html';
+        }, 1000);
     } catch (err) {
-        alert('Checkout failed: ' + err.message);
+        showModal('Checkout failed', err.message, true);
     }
 }
 
