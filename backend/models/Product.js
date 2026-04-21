@@ -23,6 +23,14 @@ class Product {
         const [result] = await db.execute('DELETE FROM products WHERE id = ?', [id]);
         return result.affectedRows;
     }
+
+    static async updateStock(id, stock) {
+        const [result] = await db.execute(
+            'UPDATE products SET stock_quantity = ? WHERE id = ?',
+            [stock, id]
+        );
+        return result.affectedRows;
+    }
 }
 
 module.exports = Product;

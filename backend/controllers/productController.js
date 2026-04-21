@@ -26,15 +26,37 @@ exports.createProduct = async (req, res) => {
         const { name, description, price, stock_quantity } = req.body;
         const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-        if (!name || !price) {
-            return res.status(400).json({ error: 'Name and price are required' });
+        const trimmedName = (name || '').trim();
+        const trimmedDesc = (description || '').trim();
+
+        // Basic emoji / non-ASCII check
+        const hasEmojiOrNonAscii = (str) => /[^\x00-\x7F]/.test(str);
+
+        if (!trimmedName) {
+            return res.status(400).json({ error: 'Name is required' });
+        }
+        if (hasEmojiOrNonAscii(trimmedName)) {
+            return res.status(400).json({ error: 'Name cannot contain emojis or non-ASCII characters' });
+        }
+        if (hasEmojiOrNonAscii(trimmedDesc)) {
+            return res.status(400).json({ error: 'Description cannot contain emojis or non-ASCII characters' });
+        }
+
+        const numericPrice = Number(price);
+        const numericStock = Number(stock_quantity);
+
+        if (!Number.isFinite(numericPrice) || numericPrice <= 0) {
+            return res.status(400).json({ error: 'Price must be a positive number' });
+        }
+        if (!Number.isInteger(numericStock) || numericStock < 0) {
+            return res.status(400).json({ error: 'Stock quantity must be a non-negative integer' });
         }
 
         const productId = await Product.create(
-            name,
-            description || '',
-            Number(price),
-            Number(stock_quantity) || 0,
+            trimmedName,
+            trimmedDesc,
+            numericPrice,
+            numericStock,
             imageUrl
         );
 
@@ -54,6 +76,28 @@ exports.deleteProduct = async (req, res) => {
         res.json({ message: 'Product deleted' });
     } catch (error) {
         console.error('Delete product error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+exports.updateStock = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { stock_quantity } = req.body;
+
+        const numericStock = Number(stock_quantity);
+        if (!Number.isInteger(numericStock) || numericStock < 0) {
+            return res.status(400).json({ error: 'Stock quantity must be a non-negative integer' });
+        }
+
+        const updated = await Product.updateStock(id, numericStock);
+        if (!updated) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        res.json({ message: 'Stock updated' });
+    } catch (error) {
+        console.error('Update stock error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };

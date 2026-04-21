@@ -7,11 +7,63 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // Simple client-side text sanitiser
+    const hasEmojiOrNonAscii = (str) => /[^\x00-\x7F]/.test(str);
+    const isBlank = (str) => !str || !str.trim();
+
+    // Admin create user
+    const adminUserForm = document.getElementById('admin-user-form');
+    if (adminUserForm) {
+        adminUserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('admin-user-username').value;
+            const email = document.getElementById('admin-user-email').value;
+            const password = document.getElementById('admin-user-password').value;
+            const role = document.getElementById('admin-user-role').value;
+
+            if (isBlank(username) || username.trim().length < 3 || hasEmojiOrNonAscii(username)) {
+                showModal('Invalid username', 'Username must be at least 3 ASCII characters.', true);
+                return;
+            }
+
+            try {
+                await api.request('/users', 'POST', {
+                    username,
+                    email,
+                    password,
+                    role
+                });
+                showModal('User created', 'New user has been registered.');
+                adminUserForm.reset();
+                await loadUsers();
+            } catch (err) {
+                showModal('Error', err.message, true);
+            }
+        });
+    }
+
     // Add product
     const productForm = document.getElementById('product-form');
     if (productForm) {
         productForm.addEventListener('submit', async (event) => {
             event.preventDefault();
+
+            const name = document.getElementById('product-name').value;
+            const price = document.getElementById('product-price').value;
+            const stock = document.getElementById('product-stock').value;
+
+            if (isBlank(name) || hasEmojiOrNonAscii(name)) {
+                showModal('Invalid name', 'Product name must be ASCII text and not empty.', true);
+                return;
+            }
+            if (Number(price) <= 0) {
+                showModal('Invalid price', 'Price must be a positive number.', true);
+                return;
+            }
+            if (!Number.isInteger(Number(stock)) || Number(stock) < 0) {
+                showModal('Invalid stock', 'Stock must be a non-negative integer.', true);
+                return;
+            }
 
             const formData = new FormData(productForm);
             try {
@@ -75,7 +127,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <td>${p.id}</td>
                     <td>${p.name}</td>
                     <td>$${(Number(p.price)).toFixed(2)}</td>
-                    <td>${p.stock_quantity}</td>
+                    <td>
+                        <input type="number" min="0" value="${p.stock_quantity}" 
+                               class="stock-input" data-id="${p.id}" style="width:80px;">
+                        <button class="btn-save-stock" data-id="${p.id}">Save</button>
+                    </td>
                     <td><button class="btn-delete-product" data-id="${p.id}">Delete</button></td>
                 `;
                 tbody.appendChild(row);
@@ -88,6 +144,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                         await api.request(`/products/${btn.dataset.id}`, 'DELETE');
                         showModal('Product deleted', 'Product has been removed.');
                         await loadProducts();
+                    } catch (err) {
+                        showModal('Error', err.message, true);
+                    }
+                });
+            });
+
+            tbody.querySelectorAll('.btn-save-stock').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const id = btn.dataset.id;
+                    const input = tbody.querySelector(`.stock-input[data-id="${id}"]`);
+                    const value = Number(input.value);
+
+                    if (!Number.isInteger(value) || value < 0) {
+                        showModal('Invalid stock', 'Stock must be a non-negative integer.', true);
+                        return;
+                    }
+
+                    try {
+                        await api.request(`/products/${id}/stock`, 'PUT', { stock_quantity: value });
+                        showModal('Stock updated', 'Product stock has been updated.');
                     } catch (err) {
                         showModal('Error', err.message, true);
                     }

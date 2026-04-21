@@ -56,10 +56,10 @@ async function createTables() {
         `);
         console.log('✓ Order_items table created/verified');
 
-        console.log('\n✅ All tables created successfully!');
+        console.log('\nAll tables created successfully!');
 
     } catch (error) {
-        console.error('❌ Error creating tables:', error.message);
+        console.error('Error creating tables:', error.message);
         process.exit(1);
     } finally {
         if (connection) {
