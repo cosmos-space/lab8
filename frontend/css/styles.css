@@ -7,6 +7,10 @@ body {
     font-family: Arial, sans-serif;
     background: #f6f8fb;
     color: #1d1f21;
+
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 header {
@@ -54,10 +58,20 @@ nav a {
     max-width: 1100px;
     margin: 24px auto;
     padding: 0 20px;
+
+    flex: 1;
+}
+
+
+main.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 h1 {
     margin-bottom: 16px;
+    text-align: center;
 }
 
 .grid-container {
@@ -97,10 +111,12 @@ h1 {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
+    transition: 0.2s;
 }
 
 .product-card button:hover {
     background: #083b88;
+    transform: translateY(-1px);
 }
 
 .form-card,
@@ -108,9 +124,13 @@ h1 {
 .cart-list {
     background: #fff;
     border: 1px solid #e1e4ea;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
 }
 
 input,
@@ -131,10 +151,32 @@ textarea {
     padding: 10px 12px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
+    transition: 0.2s;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: #0d47a1;
+    box-shadow: 0 0 0 2px rgba(13, 71, 161, 0.15);
 }
 
 button[type="submit"] {
     margin-top: 14px;
+    width: 100%;
+    background: #0d47a1;
+    color: #fff;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+
+button[type="submit"]:hover {
+    background: #083b88;
 }
 
 .hidden {
@@ -164,44 +206,9 @@ thead th {
 
 .page-link {
     margin-top: 18px;
+    text-align: center;
 }
 
 .page-link a {
     color: #0d47a1;
-}
-
-/* Global modal */
-#global-modal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-#global-modal.visible {
-    display: flex;
-}
-#global-modal .modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-}
-#global-modal .modal-card {
-    position: relative;
-    background: #fff;
-    padding: 1.5rem;
-    border-radius: 8px;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-#global-modal .modal-card.error {
-    border-left: 4px solid #d9534f;
-}
-#global-modal h3 {
-    margin-top: 0;
-}
-#global-modal button {
-    margin-top: 1rem;
 }
