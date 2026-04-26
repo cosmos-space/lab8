@@ -24,6 +24,30 @@ class User {
         const [result] = await db.execute('DELETE FROM users WHERE id = ?', [id]);
         return result.affectedRows;
     }
-}
+    static async updateById(id, updates) {
+        const fields = [];
+        const params = [];
 
-module.exports = User; 
+        if (updates.username !== undefined) {
+            fields.push('username = ?');
+            params.push(updates.username);
+        }
+        if (updates.password_hash !== undefined) {
+            fields.push('password_hash = ?');
+            params.push(updates.password_hash);
+        }
+        if (updates.role !== undefined) {
+            fields.push('role = ?');
+            params.push(updates.role);
+        }
+
+        if (fields.length === 0) return 0;
+
+        params.push(id);
+        const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
+        const [result] = await db.execute(sql, params);
+        return result.affectedRows;
+    }
+};
+
+module.exports = User;

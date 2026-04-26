@@ -25,7 +25,7 @@ const api = {
 };
 
 // Global modal: success/error confirmation
-function showModal(title, message, isError = false) {
+function showModal(title, message, type = 'info') {
     let modal = document.getElementById('global-modal');
     if (!modal) {
         modal = document.createElement('div');
@@ -48,9 +48,20 @@ function showModal(title, message, isError = false) {
         });
     }
 
+    const card = modal.querySelector('.modal-card');
+    // Reset type classes
+    card.classList.remove('error', 'success', 'warning');
+
+    if (type === true || type === 'error') {
+        card.classList.add('error');
+    } else if (type === 'success') {
+        card.classList.add('success');
+    } else if (type === 'warning') {
+        card.classList.add('warning');
+    }
+
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-message').textContent = message;
-    modal.querySelector('.modal-card').classList.toggle('error', !!isError);
     modal.classList.add('visible');
 }
 

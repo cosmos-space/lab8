@@ -72,9 +72,9 @@ async function insertProducts() {
             console.log('✓ Products table already exists');
         }
 
-        // Clear existing products
-        const [delResult] = await connection.execute('DELETE FROM products');
-        console.log(`✓ Cleared existing products (${delResult.affectedRows} rows deleted)`);
+        // Optional: clear existing products
+        // const [delResult] = await connection.execute('DELETE FROM products');
+        // console.log(`✓ Cleared existing products (${delResult.affectedRows} rows deleted)`);
 
         // Insert sample products
         const products = [

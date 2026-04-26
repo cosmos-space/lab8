@@ -7,6 +7,9 @@ const isAdmin = require('../middleware/roleMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 
 router.get('/', productController.getAllProducts);
+// Public product detail for shop page
+router.get('/public/:id', productController.getProductById);
+// Admin-only detail (if needed)
 router.get('/:id', verifyToken, isAdmin, productController.getProductById);
 router.post('/', verifyToken, isAdmin, upload.single('image'), productController.createProduct);
 router.put('/:id/stock', verifyToken, isAdmin, productController.updateStock);

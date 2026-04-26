@@ -2,10 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - E-Shop</title>
+    <title>Login - STARSHOP Eshop</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <header>
+        <nav>
+            <a href="index.html" class="brand"><span class="star">Eshop</span></a>
+            <ul id="nav-links">
+                <li>
+                    <a href="index.html" class="nav-icon-link" title="Shop">
+                        <img src="assets/store.png" alt="Shop">
+                    </a>
+                </li>
+                <li>
+                    <a href="cart.html" class="nav-icon-link" title="Cart">
+                        <img src="assets/trolley.png" alt="Cart">
+                        <span id="cart-count" class="nav-cart-count">0</span>
+                    </a>
+                </li>
+                <li id="profile-link" style="display:none;">
+                    <a href="profile.html" class="nav-icon-link" title="Profile">
+                        <img src="assets/user.png" alt="Profile">
+                    </a>
+                </li>
+                <li id="admin-link" style="display:none;">
+                    <a href="admin.html" class="nav-icon-link" title="Admin">
+                        <img src="assets/admin-icon.png" alt="Admin">
+                    </a>
+                </li>
+                <li id="auth-link"><a href="signup.html">Sign Up</a></li>
+                <li id="logout-link" style="display:none;"><button id="logout-btn" type="button">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
     <main class="container">
         <h1>Login</h1>
         <form id="login-form" class="form-card">
@@ -21,8 +51,18 @@
         </form>
     </main>
 
+    <!-- Global modal -->
+    <div id="global-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+            <h3></h3>
+            <p></p>
+            <button type="button">OK</button>
+        </div>
+    </div>
+
     <script src="js/api/api.js"></script>
+    <script src="js/modal.js"></script>
     <script src="js/pages/auth.js"></script>
 </body>
 </html>
-</html> 

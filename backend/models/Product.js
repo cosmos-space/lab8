@@ -1,8 +1,47 @@
 const db = require('../config/db');
 
 class Product {
-    static async getAll() {
-        const [rows] = await db.execute('SELECT * FROM products ORDER BY created_at DESC');
+    static async getAll(filters = {}) {
+        const {
+            search,
+            category,
+            sort = 'name',
+            sortDir = 'asc',
+            priceMin,
+            priceMax
+        } = filters;
+
+        const whereParts = [];
+        const params = [];
+
+        if (search) {
+            whereParts.push('name LIKE ?');
+            params.push(`%${search}%`);
+        }
+        if (category) {
+            whereParts.push('category LIKE ?');
+            params.push(`%${category}%`);
+        }
+        if (priceMin !== undefined) {
+            whereParts.push('price >= ?');
+            params.push(priceMin);
+        }
+        if (priceMax !== undefined) {
+            whereParts.push('price <= ?');
+            params.push(priceMax);
+        }
+
+        let whereClause = '';
+        if (whereParts.length > 0) {
+            whereClause = 'WHERE ' + whereParts.join(' AND ');
+        }
+
+        const sortMap = { name: 'name', date: 'created_at', price: 'price' };
+        const sortCol = sortMap[sort] || 'name';
+        const direction = sortDir === 'desc' ? 'DESC' : 'ASC';
+
+        const sql = `SELECT * FROM products ${whereClause} ORDER BY ${sortCol} ${direction}`;
+        const [rows] = await db.execute(sql, params);
         return rows;
     }
 

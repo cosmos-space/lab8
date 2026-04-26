@@ -6,6 +6,7 @@ const orderController = require('../controllers/orderController');
 
 router.post('/checkout', verifyToken, orderController.checkout);
 router.get('/my', verifyToken, orderController.getMyOrders);
+router.delete('/my/:id', verifyToken, orderController.deleteMyOrder);
 router.get('/', verifyToken, isAdmin, orderController.getAll);
 router.put('/:id/status', verifyToken, isAdmin, orderController.updateStatus);
 

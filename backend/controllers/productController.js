@@ -2,7 +2,26 @@ const Product = require('../models/Product');
 
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await Product.getAll();
+        const {
+            search,
+            category,
+            sort,
+            sortDir,
+            priceMin,
+            priceMax
+        } = req.query;
+
+        const filters = {
+            search,
+            category,
+            sort,
+            sortDir,
+        };
+
+        if (priceMin !== undefined) filters.priceMin = Number(priceMin);
+        if (priceMax !== undefined) filters.priceMax = Number(priceMax);
+
+        const products = await Product.getAll(filters);
         res.json(products);
     } catch (error) {
         console.error('Get products error:', error);
@@ -93,6 +112,11 @@ exports.updateStock = async (req, res) => {
         const updated = await Product.updateStock(id, numericStock);
         if (!updated) {
             return res.status(404).json({ error: 'Product not found' });
+        }
+
+        if (numericStock === 0) {
+            const OrderModel = require('../models/Order');
+            await OrderModel.cancelUnconfirmedOrdersForProduct(id);
         }
 
         res.json({ message: 'Stock updated' });

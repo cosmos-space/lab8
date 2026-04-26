@@ -14,9 +14,9 @@ const swaggerOptions = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'JS E-Commerce API',
+            title: 'STARSHOP Eshop API',
             version: '1.0.0',
-            description: 'REST API Documentation for the JS E-Commerce Application',
+            description: 'REST API Documentation for the STARSHOP Eshop Application',
         },
         servers: [{ url: 'http://localhost:5000' }],
         components: {

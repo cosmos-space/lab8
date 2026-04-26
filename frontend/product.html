@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product - Eshop</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html" class="brand"><span class="star">Eshop</span></a>
+            <ul id="nav-links">
+                <li>
+                    <a href="index.html" class="nav-icon-link" title="Shop">
+                        <img src="assets/store.png" alt="Shop">
+                    </a>
+                </li>
+                <li>
+                    <a href="cart.html" class="nav-icon-link" title="Cart">
+                        <img src="assets/trolley.png" alt="Cart">
+                        <span id="cart-count" class="nav-cart-count">0</span>
+                    </a>
+                </li>
+                <li id="profile-link" style="display:none;">
+                    <a href="profile.html" class="nav-icon-link" title="Profile">
+                        <img src="assets/user.png" alt="Profile">
+                    </a>
+                </li>
+                <li id="admin-link" style="display:none;">
+                    <a href="admin.html" class="nav-icon-link" title="Admin">
+                        <img src="assets/admin-icon.png" alt="Admin">
+                    </a>
+                </li>
+                <li id="auth-link"><a href="login.html">Login</a></li>
+                <li id="logout-link" style="display:none;"><button id="logout-btn" type="button">Logout</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container product-detail-layout">
+        <button id="product-back" type="button" class="product-back-btn">← Back</button>
+
+        <section id="product-detail-main">
+            <div id="product-detail-image" class="product-detail-image"></div>
+
+            <div class="product-detail-info">
+                <h1 id="product-detail-name">Loading...</h1>
+                <p id="product-detail-price" class="product-detail-price"></p>
+                <p id="product-detail-description" class="product-detail-description"></p>
+
+                <div class="product-detail-controls">
+                    <div class="product-detail-qty-group">
+                        <label for="product-detail-qty">Quantity</label>
+                        <input id="product-detail-qty" type="number" min="1" value="1">
+                    </div>
+                    <button id="product-detail-add" type="button">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Global modal -->
+    <div id="global-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-card">
+            <h3></h3>
+            <p></p>
+            <button type="button">OK</button>
+        </div>
+    </div>
+
+    <script src="js/api/api.js"></script>
+    <script src="js/modal.js"></script>
+    <script src="js/pages/auth.js"></script>
+    <script src="js/pages/cart.js"></script>
+    <script src="js/pages/product.js"></script>
+</body>
+</html>

@@ -15,6 +15,54 @@ exports.getMe = async (req, res) => {
     }
 };
 
+exports.updateMe = async (req, res) => {
+    try {
+        const id = req.user?.id;
+        if (!id) return res.status(401).json({ error: 'Unauthorized' });
+
+        const { username, password } = req.body;
+        const updates = {};
+
+        const hasEmojiOrNonAscii = (str) => /[^\x00-\x7F]/.test(str);
+
+        if (typeof username === 'string') {
+            const trimmedUsername = username.trim();
+            if (!trimmedUsername || trimmedUsername.length < 3) {
+                return res.status(400).json({ error: 'Username must be at least 3 characters' });
+            }
+            if (hasEmojiOrNonAscii(trimmedUsername)) {
+                return res.status(400).json({ error: 'Username cannot contain emojis or non-ASCII characters' });
+            }
+            updates.username = trimmedUsername;
+        }
+
+        if (typeof password === 'string' && password.trim()) {
+            const trimmedPassword = password.trim();
+            if (trimmedPassword.length < 6) {
+                return res.status(400).json({ error: 'Password must be at least 6 characters' });
+            }
+            const bcrypt = require('bcrypt');
+            const salt = await bcrypt.genSalt(10);
+            const password_hash = await bcrypt.hash(trimmedPassword, salt);
+            updates.password_hash = password_hash;
+        }
+
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ error: 'Nothing to update' });
+        }
+
+        const updated = await User.updateById(id, updates);
+        if (!updated) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ message: 'Profile updated' });
+    } catch (error) {
+        console.error('Update me error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.getAll();
@@ -35,6 +83,28 @@ exports.deleteUser = async (req, res) => {
         res.json({ message: 'User deleted' });
     } catch (error) {
         console.error('Delete user error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+exports.updateUserRole = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { role } = req.body;
+
+        const allowedRoles = ['user', 'admin'];
+        if (!allowedRoles.includes(role)) {
+            return res.status(400).json({ error: 'Invalid role' });
+        }
+
+        const updated = await User.updateById(id, { role });
+        if (!updated) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ message: 'Role updated' });
+    } catch (error) {
+        console.error('Update user role error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
