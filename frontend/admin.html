@@ -38,6 +38,7 @@
             <button type="button" class="admin-nav-link active" data-section="products">Product Management</button>
             <button type="button" class="admin-nav-link" data-section="orders">Order Management</button>
             <button type="button" class="admin-nav-link" data-section="users">User Management</button>
+            <button type="button" class="admin-nav-link" data-section="archived">Archived</button>
         </aside>
 
         <section class="admin-content">
@@ -146,6 +147,57 @@
                         <tbody id="user-table-body"></tbody>
                     </table>
                     <div id="user-pagination" class="pagination"></div>
+                </section>
+            </section>
+
+            <!-- ARCHIVED SECTION -->
+            <section id="admin-section-archived" class="admin-section">
+                <section class="table-card">
+                    <h2>Archived Users</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="archived-user-table"></tbody>
+                    </table>
+                </section>
+
+                <section class="table-card">
+                    <h2>Archived Products</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="archived-product-table"></tbody>
+                    </table>
+                </section>
+
+                <section class="table-card">
+                    <h2>Archived Orders</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="archived-order-table"></tbody>
+                    </table>
                 </section>
             </section>
         </section>

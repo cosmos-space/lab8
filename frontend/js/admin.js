@@ -11,109 +11,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     const navLinks = document.querySelectorAll('.admin-nav-link');
     const sections = document.querySelectorAll('.admin-section');
 
-    function showSection(sectionName) {
-        sections.forEach(sec => {
-            if (sec.id === `admin-section-${sectionName}`) {
-                sec.classList.add('active');
-            } else {
-                sec.classList.remove('active');
-            }
-        });
-        navLinks.forEach(btn => {
-            if (btn.dataset.section === sectionName) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-    }
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            const targetSection = link.dataset.section;
+            
+            // Update nav links
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            
+            // Update sections
+            sections.forEach(section => {
+                section.classList.remove('active');
+                if (section.id === `admin-section-${targetSection}`) {
+                    section.classList.add('active');
+                }
+            });
 
-    navLinks.forEach(btn => {
-        btn.addEventListener('click', () => {
-            showSection(btn.dataset.section);
+            // Load archived data when archived tab is clicked
+            if (targetSection === 'archived') {
+                loadArchivedUsers();
+                loadArchivedProducts();
+                loadArchivedOrders();
+            }
         });
     });
 
-    // Ensure default section is products
-    showSection('products');
+    // Logout
+    document.getElementById('admin-logout-btn')?.addEventListener('click', () => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+    });
 
-    // Admin logout button
-    const logoutBtn = document.getElementById('admin-logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await api.request('/auth/logout', 'POST');
-            } catch (e) {
-                console.error('Logout failed:', e);
-            } finally {
-                localStorage.removeItem('user');
-                window.location.href = 'login.html';
-            }
-        });
-    }
-
-    // Simple client-side text sanitiser
-    const hasEmojiOrNonAscii = (str) => /[^\x00-\x7F]/.test(str);
-    const isBlank = (str) => !str || !str.trim();
-
-    // Admin create user
-    const adminUserForm = document.getElementById('admin-user-form');
-    if (adminUserForm) {
-        adminUserForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('admin-user-username').value;
-            const email = document.getElementById('admin-user-email').value;
-            const password = document.getElementById('admin-user-password').value;
-            const role = document.getElementById('admin-user-role').value;
-
-            if (isBlank(username) || username.trim().length < 3 || hasEmojiOrNonAscii(username)) {
-                showModal('Invalid username', 'Username must be at least 3 ASCII characters.', true);
-                return;
-            }
-
-            try {
-                await api.request('/users', 'POST', {
-                    username,
-                    email,
-                    password,
-                    role
-                });
-                showModal('User created', 'New user has been registered.', 'success');
-                adminUserForm.reset();
-                await loadUsers();
-            } catch (err) {
-                showModal('Error', err.message, true);
-            }
-        });
-    }
-
-    // Add product
+    // Product form
     const productForm = document.getElementById('product-form');
     if (productForm) {
-        productForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const name = document.getElementById('product-name').value;
-            const price = document.getElementById('product-price').value;
-            const stock = document.getElementById('product-stock').value;
-
-            if (isBlank(name) || hasEmojiOrNonAscii(name)) {
-                showModal('Invalid name', 'Product name must be ASCII text and not empty.', true);
-                return;
-            }
-            if (Number(price) <= 0) {
-                showModal('Invalid price', 'Price must be a positive number.', true);
-                return;
-            }
-            if (!Number.isInteger(Number(stock)) || Number(stock) < 0) {
-                showModal('Invalid stock', 'Stock must be a non-negative integer.', true);
-                return;
-            }
-
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             const formData = new FormData(productForm);
             try {
-                await api.request('/products', 'POST', formData);
-                showModal('Product added', 'Product created successfully.');
+                await api.request('/products', 'POST', formData, true);
+                showModal('Success', 'Product added successfully', 'success');
                 productForm.reset();
                 await loadProducts();
             } catch (err) {
@@ -122,57 +60,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // User form
+    const userForm = document.getElementById('admin-user-form');
+    if (userForm) {
+        userForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(userForm);
+            const data = Object.fromEntries(formData.entries());
+            try {
+                await api.request('/users', 'POST', data);
+                showModal('Success', 'User created successfully', 'success');
+                userForm.reset();
+                await loadUsers();
+            } catch (err) {
+                showModal('Error', err.message, true);
+            }
+        });
+    }
+
+    // Pagination helper
     function paginate(items, page, perPage) {
-        const total = items.length;
-        const totalPages = Math.max(1, Math.ceil(total / perPage));
-        const clampedPage = Math.min(Math.max(1, page), totalPages);
-        const start = (clampedPage - 1) * perPage;
+        const start = (page - 1) * perPage;
         const end = start + perPage;
         return {
-            page: clampedPage,
-            totalPages,
-            items: items.slice(start, end)
+            items: items.slice(start, end),
+            totalPages: Math.ceil(items.length / perPage)
         };
     }
 
-    function renderPagination(containerId, page, totalPages, onChange) {
+    // Render pagination
+    function renderPagination(containerId, currentPage, totalPages, render) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        container.innerHTML = '';
 
+        container.innerHTML = '';
         if (totalPages <= 1) return;
 
-        const maxButtons = 5;
-        let startPage = Math.max(1, page - Math.floor(maxButtons / 2));
-        let endPage = startPage + maxButtons - 1;
-        if (endPage > totalPages) {
-            endPage = totalPages;
-            startPage = Math.max(1, endPage - maxButtons + 1);
-        }
-
-        const prev = document.createElement('button');
-        prev.textContent = '←';
-        prev.disabled = page === 1;
-        prev.addEventListener('click', () => onChange(page - 1));
-        container.appendChild(prev);
-
-        for (let p = startPage; p <= endPage; p++) {
+        for (let i = 1; i <= totalPages; i++) {
             const btn = document.createElement('button');
-            btn.textContent = String(p);
-            if (p === page) {
-                btn.disabled = true;
-            }
-            btn.addEventListener('click', () => onChange(p));
+            btn.textContent = i;
+            btn.className = i === currentPage ? 'active' : '';
+            btn.onclick = () => render(i);
             container.appendChild(btn);
         }
-
-        const next = document.createElement('button');
-        next.textContent = '→';
-        next.disabled = page === totalPages;
-        next.addEventListener('click', () => onChange(page + 1));
-        container.appendChild(next);
     }
 
+    // Load users
     async function loadUsers() {
         try {
             const allUsers = await api.request('/users', 'GET');
@@ -235,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         try {
                             await api.request(`/users/${btn.dataset.id}`, 'DELETE');
                             showModal('User deleted', 'User has been removed.');
-                            await loadUsers(); // re-fetch
+                            await loadUsers();
                         } catch (err) {
                             showModal('Error', err.message, true);
                         }
@@ -256,6 +189,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // Load products
     async function loadProducts() {
         try {
             const allProducts = await api.request('/products', 'GET');
@@ -345,6 +279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // Load orders
     async function loadOrders() {
         try {
             const allOrders = await api.request('/orders', 'GET');
@@ -414,6 +349,139 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (err) {
             console.error('Failed to load orders:', err);
             showModal('Error', 'Failed to load orders', true);
+        }
+    }
+
+    // Archived data loading functions
+    async function loadArchivedUsers() {
+        try {
+            const users = await api.request('/users/archived', 'GET');
+            const tbody = document.getElementById('archived-user-table');
+
+            tbody.innerHTML = '';
+
+            users.forEach(u => {
+                const tr = document.createElement('tr');
+
+                tr.innerHTML = `
+                    <td>${u.id}</td>
+                    <td>${u.username}</td>
+                    <td>${u.email}</td>
+                    <td>${u.role}</td>
+                    <td>
+                        <button data-id="${u.id}" class="delete-user">
+                            Delete permanently
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+
+            document.querySelectorAll('.delete-user').forEach(btn => {
+                btn.onclick = async () => {
+                    if (!confirm('Permanent delete?')) return;
+
+                    try {
+                        await api.request(`/users/${btn.dataset.id}/hard`, 'DELETE');
+                        await loadArchivedUsers();
+                        showModal('Success', 'User permanently deleted', 'success');
+                    } catch (err) {
+                        showModal('Error', err.message, true);
+                    }
+                };
+            });
+        } catch (err) {
+            console.error('Failed to load archived users:', err);
+            showModal('Error', 'Failed to load archived users', true);
+        }
+    }
+
+    async function loadArchivedProducts() {
+        try {
+            const products = await api.request('/products/archived', 'GET');
+            const tbody = document.getElementById('archived-product-table');
+
+            tbody.innerHTML = '';
+
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+
+                tr.innerHTML = `
+                    <td>${p.id}</td>
+                    <td>${p.name}</td>
+                    <td>$${p.price}</td>
+                    <td>${p.stock_quantity}</td>
+                    <td>
+                        <button data-id="${p.id}" class="delete-product">
+                            Delete permanently
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+
+            document.querySelectorAll('.delete-product').forEach(btn => {
+                btn.onclick = async () => {
+                    if (!confirm('Permanent delete?')) return;
+
+                    try {
+                        await api.request(`/products/${btn.dataset.id}/hard`, 'DELETE');
+                        await loadArchivedProducts();
+                        showModal('Success', 'Product permanently deleted', 'success');
+                    } catch (err) {
+                        showModal('Error', err.message, true);
+                    }
+                };
+            });
+        } catch (err) {
+            console.error('Failed to load archived products:', err);
+            showModal('Error', 'Failed to load archived products', true);
+        }
+    }
+
+    async function loadArchivedOrders() {
+        try {
+            const orders = await api.request('/orders/archived', 'GET');
+            const tbody = document.getElementById('archived-order-table');
+
+            tbody.innerHTML = '';
+
+            orders.forEach(o => {
+                const tr = document.createElement('tr');
+
+                tr.innerHTML = `
+                    <td>${o.id}</td>
+                    <td>$${o.total_amount}</td>
+                    <td>${o.status}</td>
+                    <td>${new Date(o.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <button data-id="${o.id}" class="delete-order">
+                            Delete permanently
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+
+            document.querySelectorAll('.delete-order').forEach(btn => {
+                btn.onclick = async () => {
+                    if (!confirm('Permanent delete?')) return;
+
+                    try {
+                        await api.request(`/orders/${btn.dataset.id}/hard`, 'DELETE');
+                        await loadArchivedOrders();
+                        showModal('Success', 'Order permanently deleted', 'success');
+                    } catch (err) {
+                        showModal('Error', err.message, true);
+                    }
+                };
+            });
+        } catch (err) {
+            console.error('Failed to load archived orders:', err);
+            showModal('Error', 'Failed to load archived orders', true);
         }
     }
 
