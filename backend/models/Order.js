@@ -26,7 +26,7 @@ class Order {
 
     static async getOrdersByUser(userId) {
         const [orders] = await db.execute(
-            'SELECT id, total_amount, status, created_at FROM orders WHERE user_id = ? ORDER BY created_at DESC',
+            'SELECT id, total_amount, status, created_at FROM orders WHERE user_id = ? AND is_deleted = 0 ORDER BY created_at DESC',
             [userId]
         );
         return orders;
@@ -49,7 +49,7 @@ class Order {
             `SELECT DISTINCT o.id
              FROM orders o
              JOIN order_items oi ON oi.order_id = o.id
-             WHERE oi.product_id = ? AND o.status = 'Pending'`,
+             WHERE oi.product_id = ? AND o.status = 'Pending' AND o.is_deleted = 0`,
             [productId]
         );
         const ids = rows.map(r => r.id);
@@ -58,6 +58,23 @@ class Order {
             `UPDATE orders SET status = 'Cancelled' WHERE id IN (${ids.map(() => '?').join(',')})`,
             ids
         );
+    }
+
+    static async delete(id) {
+        const [result] = await db.execute('UPDATE orders SET is_deleted = 1 WHERE id = ?', [id]);
+        return result.affectedRows;
+    }
+
+    static async getArchivedOrders() {
+        const [orders] = await db.execute(
+            'SELECT id, total_amount, status, created_at FROM orders WHERE is_deleted = 1 ORDER BY created_at DESC'
+        );
+        return orders;
+    }
+
+    static async hardDelete(id) {
+        const [result] = await db.execute('DELETE FROM orders WHERE id = ?', [id]);
+        return result.affectedRows;
     }
 }
 

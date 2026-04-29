@@ -125,3 +125,27 @@ exports.updateStock = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+exports.getArchivedProducts = async (req, res) => {
+    try {
+        const products = await Product.getArchivedProducts();
+        res.json(products);
+    } catch (error) {
+        console.error('Get archived products error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+exports.hardDeleteProduct = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const deleted = await Product.hardDelete(id);
+        if (!deleted) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+        res.json({ message: 'Product permanently deleted' });
+    } catch (error) {
+        console.error('Hard delete product error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};

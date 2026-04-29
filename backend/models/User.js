@@ -2,11 +2,11 @@ const db = require('../config/db');
 
 class User {
     static async findByEmail(email) {
-        const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+        const [rows] = await db.execute('SELECT * FROM users WHERE email = ? AND is_deleted = 0', [email]);
         return rows[0];
     }
     static async findById(id) {
-        const [rows] = await db.execute('SELECT id, username, email, role, created_at FROM users WHERE id = ?', [id]);
+        const [rows] = await db.execute('SELECT id, username, email, role, created_at FROM users WHERE id = ? AND is_deleted = 0', [id]);
         return rows[0];
     }
     static async create(username, email, password_hash, role = 'user') {
@@ -17,11 +17,11 @@ class User {
         return result.insertId;
     }
     static async getAll() {
-        const [rows] = await db.execute('SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC');
+        const [rows] = await db.execute('SELECT id, username, email, role, created_at FROM users WHERE is_deleted = 0 ORDER BY created_at DESC');
         return rows;
     }
     static async delete(id) {
-        const [result] = await db.execute('DELETE FROM users WHERE id = ?', [id]);
+        const [result] = await db.execute('UPDATE users SET is_deleted = 1 WHERE id = ?', [id]);
         return result.affectedRows;
     }
     static async updateById(id, updates) {
@@ -46,6 +46,16 @@ class User {
         params.push(id);
         const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
         const [result] = await db.execute(sql, params);
+        return result.affectedRows;
+    }
+
+    static async getArchivedUsers() {
+        const [rows] = await db.execute('SELECT id, username, email, role, created_at FROM users WHERE is_deleted = 1 ORDER BY created_at DESC');
+        return rows;
+    }
+
+    static async hardDelete(id) {
+        const [result] = await db.execute('DELETE FROM users WHERE id = ?', [id]);
         return result.affectedRows;
     }
 };

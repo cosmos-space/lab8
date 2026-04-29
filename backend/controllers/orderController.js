@@ -26,6 +26,7 @@ exports.getAll = async (req, res) => {
                     u.username, u.email
              FROM orders o
              JOIN users u ON o.user_id = u.id
+             WHERE o.is_deleted = 0
              ORDER BY o.created_at DESC`
         );
         res.json(rows);
@@ -129,17 +130,40 @@ exports.deleteMyOrder = async (req, res) => {
         if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
         const db = require('../config/db');
-        const [rows] = await db.execute('SELECT user_id FROM orders WHERE id = ?', [orderId]);
+        const [rows] = await db.execute('SELECT user_id FROM orders WHERE id = ? AND is_deleted = 0', [orderId]);
         const order = rows[0];
         if (!order || order.user_id !== userId) {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        await db.execute('DELETE FROM order_items WHERE order_id = ?', [orderId]);
-        await db.execute('DELETE FROM orders WHERE id = ?', [orderId]);
+        await Order.delete(orderId);
         res.json({ message: 'Order deleted' });
     } catch (error) {
         console.error('Delete my order error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+exports.getArchivedOrders = async (req, res) => {
+    try {
+        const orders = await Order.getArchivedOrders();
+        res.json(orders);
+    } catch (error) {
+        console.error('Get archived orders error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+exports.hardDeleteOrder = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const deleted = await Order.hardDelete(id);
+        if (!deleted) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        res.json({ message: 'Order permanently deleted' });
+    } catch (error) {
+        console.error('Hard delete order error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };

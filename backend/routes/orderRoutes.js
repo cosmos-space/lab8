@@ -10,4 +10,8 @@ router.delete('/my/:id', verifyToken, orderController.deleteMyOrder);
 router.get('/', verifyToken, isAdmin, orderController.getAll);
 router.put('/:id/status', verifyToken, isAdmin, orderController.updateStatus);
 
+// Archived and hard delete routes
+router.get('/archived', verifyToken, isAdmin, orderController.getArchivedOrders);
+router.delete('/:id/hard', verifyToken, isAdmin, orderController.hardDeleteOrder);
+
 module.exports = router;

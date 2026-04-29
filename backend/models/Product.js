@@ -14,6 +14,9 @@ class Product {
         const whereParts = [];
         const params = [];
 
+        // Always filter out deleted products
+        whereParts.push('is_deleted = 0');
+
         if (search) {
             whereParts.push('name LIKE ?');
             params.push(`%${search}%`);
@@ -46,7 +49,7 @@ class Product {
     }
 
     static async getById(id) {
-        const [rows] = await db.execute('SELECT * FROM products WHERE id = ?', [id]);
+        const [rows] = await db.execute('SELECT * FROM products WHERE id = ? AND is_deleted = 0', [id]);
         return rows[0];
     }
 
@@ -59,7 +62,7 @@ class Product {
     }
 
     static async delete(id) {
-        const [result] = await db.execute('DELETE FROM products WHERE id = ?', [id]);
+        const [result] = await db.execute('UPDATE products SET is_deleted = 1 WHERE id = ?', [id]);
         return result.affectedRows;
     }
 
@@ -68,6 +71,16 @@ class Product {
             'UPDATE products SET stock_quantity = ? WHERE id = ?',
             [stock, id]
         );
+        return result.affectedRows;
+    }
+
+    static async getArchivedProducts() {
+        const [rows] = await db.execute('SELECT id, name, price, stock_quantity, created_at FROM products WHERE is_deleted = 1 ORDER BY created_at DESC');
+        return rows;
+    }
+
+    static async hardDelete(id) {
+        const [result] = await db.execute('DELETE FROM products WHERE id = ?', [id]);
         return result.affectedRows;
     }
 }

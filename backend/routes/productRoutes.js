@@ -15,4 +15,8 @@ router.post('/', verifyToken, isAdmin, upload.single('image'), productController
 router.put('/:id/stock', verifyToken, isAdmin, productController.updateStock);
 router.delete('/:id', verifyToken, isAdmin, productController.deleteProduct);
 
+// Archived and hard delete routes
+router.get('/archived', verifyToken, isAdmin, productController.getArchivedProducts);
+router.delete('/:id/hard', verifyToken, isAdmin, productController.hardDeleteProduct);
+
 module.exports = router;
